@@ -1,5 +1,4 @@
 def validate_phone_number(phone_number):
-
     if phone_number.startswith('+'):
         phone_number = phone_number[1:]
 
@@ -20,7 +19,6 @@ def validate_phone_number(phone_number):
 
 
 def add_contact(save_to):
-
     add_name = input("\nEnter the name of the contact: ")
 
 
@@ -37,7 +35,6 @@ def add_contact(save_to):
 
 
 def remove_contact(save_to):
-
     remove_name = input("\nEnter the name of the contact: ")
 
     try:
@@ -48,7 +45,6 @@ def remove_contact(save_to):
 
 
 def get_contact(save_to):
-
     search_contact = input("\nEnter the name of the contact to search for: ")
 
     if search_contact in save_to:
@@ -58,7 +54,6 @@ def get_contact(save_to):
 
 
 def get_phonebook(save_to):
-
     print("Phone book:")
 
     for key in save_to:
@@ -66,7 +61,6 @@ def get_phonebook(save_to):
 
 
 def menu(save_to):
-
     print ("Welcome to the phone book app!")
 
     while True:
@@ -100,11 +94,9 @@ def menu(save_to):
 
 
 def main():
-
     phone_book = {}
     menu(phone_book)
 
 
 if __name__ == '__main__':
-
     main()

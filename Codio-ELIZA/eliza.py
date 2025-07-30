@@ -8,7 +8,6 @@ prompt= ("\33[33m\nHow can I help you today?: ".upper())
 
 
 while True:
-
     user_input = input(prompt)
 
     if user_input == "q":
