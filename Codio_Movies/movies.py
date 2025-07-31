@@ -1,51 +1,55 @@
+from random import choice
+
+
 def get_valid_rating():
     rating = 0
     while rating < 1 or rating > 10:
         try:
-            rating = int(input("Enter movie rating (1-10): "))
+            rating = float(input("\nEnter movie rating (1-10): "))
 
             if rating < 1 or rating > 10:
-                print("Invalid rating, please enter a number within range\n")
+                raise ValueError()
 
         except ValueError:
-            print("Invalid rating, please enter a number within range\n")
+            print("\nInvalid rating, please enter a number within range")
 
     return rating
 
 
 def get_movie_list(movie_dict: dict):
-
     print(f"\n{len(movie_dict)} movies in total\n")
 
     for movie in movie_dict:
-
         print(f"{movie}: {movie_dict[movie]}")
 
     input("\nPress Enter to continue")
 
 
 def add_movie(movie_dict: dict):
-
     name = ""
 
     while len(name) < 1:
         name = input("\nEnter movie name: ")
+        if len(name) < 1:
+            print("\nMovie name must be at least one character long!")
 
-    rating = get_valid_rating()
-
-    movie_dict[name] = rating
-    print(f"\nMovie {name} successfully added")
+    if name in movie_dict:
+        print(f"\nMovie {name} already exists! Returning to menu.")
+    else:
+        rating = get_valid_rating()
+        movie_dict[name] = rating
+        print(f"\nMovie {name} successfully added.")
 
     input("\nPress Enter to continue")
 
 
 def delete_movie(movie_dict: dict):
-
     movie_name = input("\nEnter movie name to delete: ")
 
     try:
         del movie_dict[movie_name]
         print(f"\nMovie {movie_name} successfully deleted")
+
     except KeyError:
         print(f"\nMovie {movie_name} not found. Returning to menu")
 
@@ -53,7 +57,6 @@ def delete_movie(movie_dict: dict):
 
 
 def update_movie(movie_dict: dict):
-
     movie_name = input("\nEnter movie name to update: ")
 
     if movie_name in movie_dict:
@@ -68,6 +71,7 @@ def update_movie(movie_dict: dict):
 
 
 def get_movie_stats(movie_dict: dict):
+    """get avg, median, best(rating), worst(rating) - if same rating, print all with same rating"""
 
     average_rating = 0
     for movie in movie_dict:
@@ -83,18 +87,28 @@ def get_movie_stats(movie_dict: dict):
     median_rating = ratings[median_index]
     print(f"Median rating: {median_rating}")
 
-    best_movie = max(movie_dict, key=movie_dict.get)
-    print(f"Best movie: {best_movie}, {movie_dict[best_movie]}")
+    best_score = max(movie_dict.values())
+    best_movies = []
+    for movie in movie_dict:
+        if movie_dict[movie] == best_score:
+            best_movies.append(movie)
+    print("Best movie(s):")
+    for movie in best_movies:
+        print(f"\t{movie}, {movie_dict[movie]}")
 
-    worst_movie = min(movie_dict, key=movie_dict.get)
-    print(f"Worst movie: {worst_movie}, {movie_dict[worst_movie]}")
+    worst_score = min(movie_dict.values())
+    worst_movies = []
+    for movie in movie_dict:
+        if movie_dict[movie] == worst_score:
+            worst_movies.append(movie)
+    print("Worst movie(s):")
+    for movie in worst_movies:
+        print(f"\t{movie}, {movie_dict[movie]}")
 
     input("\nPress Enter to continue")
 
 
-from random import choice
 def get_random_movie(movie_dict: dict):
-
     movie, rating = choice(list(movie_dict.items()))
     print(f"\nYour movie for tonight: {movie}, it's rated {rating}")
 
@@ -102,7 +116,6 @@ def get_random_movie(movie_dict: dict):
 
 
 def get_movie(movie_dict: dict):
-
     movie_search = input("Enter part of movie name: ")
 
     movies_found = 0
@@ -132,7 +145,6 @@ def get_ranked_movies(movie_dict: dict):
 
 
 def menu(movie_dict: dict):
-
     while True:
 
         print("""\nMenu:
@@ -173,7 +185,6 @@ def menu(movie_dict: dict):
 
 
 def main():
-
     movies = {
         "The Shawshank Redemption": 9.5,
         "Pulp Fiction": 8.8,
