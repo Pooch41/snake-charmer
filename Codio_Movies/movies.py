@@ -2,6 +2,7 @@ from random import choice
 
 
 def get_valid_rating():
+    """validate that rating is a number and is within bounds"""
     rating = 0
     while rating < 1 or rating > 10:
         try:
@@ -17,6 +18,7 @@ def get_valid_rating():
 
 
 def get_movie_list(movie_dict: dict):
+    """retrieve all movies"""
     print(f"\n{len(movie_dict)} movies in total\n")
 
     for movie in movie_dict:
@@ -26,6 +28,7 @@ def get_movie_list(movie_dict: dict):
 
 
 def add_movie(movie_dict: dict):
+    """add movie to dict"""
     name = ""
 
     while len(name) < 1:
@@ -44,6 +47,7 @@ def add_movie(movie_dict: dict):
 
 
 def delete_movie(movie_dict: dict):
+    """remove movie from dict"""
     movie_name = input("\nEnter movie name to delete: ")
 
     try:
@@ -57,6 +61,7 @@ def delete_movie(movie_dict: dict):
 
 
 def update_movie(movie_dict: dict):
+    """update existing movie in dict"""
     movie_name = input("\nEnter movie name to update: ")
 
     if movie_name in movie_dict:
@@ -109,6 +114,7 @@ def get_movie_stats(movie_dict: dict):
 
 
 def get_random_movie(movie_dict: dict):
+    """select random movie from dict, show rating"""
     movie, rating = choice(list(movie_dict.items()))
     print(f"\nYour movie for tonight: {movie}, it's rated {rating}")
 
@@ -116,6 +122,7 @@ def get_random_movie(movie_dict: dict):
 
 
 def get_movie(movie_dict: dict):
+    """search movie from dict, from any part of name - show rating when found"""
     movie_search = input("Enter part of movie name: ")
 
     movies_found = 0
@@ -132,6 +139,7 @@ def get_movie(movie_dict: dict):
 
 
 def get_ranked_movies(movie_dict: dict):
+    """sort and show movies by rating, display sorted rankings"""
     cloned_dict = movie_dict.copy()
 
     print()
@@ -145,6 +153,18 @@ def get_ranked_movies(movie_dict: dict):
 
 
 def menu(movie_dict: dict):
+    """menu function -  show actions, select, execute, return to menu"""
+    menu_dispatch = {
+        1: get_movie_list,
+        2: add_movie,
+        3: delete_movie,
+        4: update_movie,
+        5: get_movie_stats,
+        6: get_random_movie,
+        7: get_movie,
+        8: get_ranked_movies,
+    }
+
     while True:
 
         print("""\nMenu:
@@ -159,29 +179,14 @@ def menu(movie_dict: dict):
 
         try:
             user_input = int(input("\nEnter choice (1-8): "))
+            if user_input < 1 or user_input > 8:
+                raise ValueError
         except ValueError:
             print("\nPlease enter a number")
             continue
 
-        match user_input:
-            case 1:
-                get_movie_list(movie_dict)
-            case 2:
-                add_movie(movie_dict)
-            case 3:
-                delete_movie(movie_dict)
-            case 4:
-                update_movie(movie_dict)
-            case 5:
-                get_movie_stats(movie_dict)
-            case 6:
-                get_random_movie(movie_dict)
-            case 7:
-                get_movie(movie_dict)
-            case 8:
-                get_ranked_movies(movie_dict)
-            case _:
-                print("\nInvalid choice, please enter number within range 1-8")
+        menu_dispatch[user_input](movie_dict)
+
 
 
 def main():
