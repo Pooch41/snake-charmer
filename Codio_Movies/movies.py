@@ -1,4 +1,5 @@
 from random import choice
+from statistics import median
 
 
 def get_valid_rating():
@@ -87,9 +88,7 @@ def get_movie_stats(movie_dict: dict):
     ratings = []
     for movie in movie_dict:
         ratings.append(movie_dict[movie])
-    ratings.sort()
-    median_index = int(len(ratings) / 2)
-    median_rating = ratings[median_index]
+    median_rating = median(ratings)
     print(f"Median rating: {median_rating}")
 
     best_score = max(movie_dict.values())
