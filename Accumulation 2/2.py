@@ -8,3 +8,5 @@ tester = {'info': [
        {'name': 'Adam', 'major': 'Violin Performance', 'class standing': 'Senior', 'important classes': ['PIANO 101', 'STUDIO 300', 'THEORY 229', 'MUSC 356']}]}
 
 
+class_sched = [item['important classes'] for item in tester['info']]
+
