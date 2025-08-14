@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Jonathan",
+        "average grade": 71.5,
+        "student max": 100,
+        "student min": 33
+    },
+    {
+        "name": "Rona",
+        "average grade": 60.5,
+        "student max": 99,
+        "student min": 22
+    },
+    {
+        "name": "Valentin",
+        "average grade": 97.6,
+        "student max": 99,
+        "student min": 95
+    }
+]

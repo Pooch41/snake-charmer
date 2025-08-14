@@ -1,17 +1,22 @@
 import re
 
+
 def file_to_string(filename):
+    """converts file contents to string"""
     with open(filename, 'r') as f:
         file_contents = f.read()
-
     return file_contents
+
+
 def split_string(string):
+    """splits string into words, removes most punctation"""
     input_string = string.lower()
     s = re.split(r'[;,.\s]+', input_string)
     return s
 
 
 def get_letter_frequency(string):
+    """collects letter frequencies of letters from string"""
     freq_dict = {}
     coded_list = split_string(string)
 
@@ -24,7 +29,9 @@ def get_letter_frequency(string):
 
     return freq_dict
 
+
 def get_ranked_frequency(string):
+    """ranks the letter from most to least frequent in string"""
     freq_dict = get_letter_frequency(string)
     freq_dict_copy = freq_dict.copy()
     ranked_dict = {}
@@ -38,14 +45,17 @@ def get_ranked_frequency(string):
 
     return ranked_dict
 
-def get_frequency_analysis(string):
 
+def print_frequency_analysis(string):
+    """gets quick overview of letter frequencies"""
     sorted_dict = get_ranked_frequency(string)
     print(sorted_dict)
     print(f"Length of dict - {len(sorted_dict)}")
 
+
 def main():
     pass
+
 
 if __name__ == '__main__':
     main()
