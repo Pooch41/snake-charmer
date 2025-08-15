@@ -1,8 +1,9 @@
 import cypher_analysis as ca
-NUM_OF_CHAR_IN_ALPHABET = 26
+NUM_OF_CHAR_IN_ENG_ALPHABET = 26
 
 
 def get_alphabet_number_dict():
+    """generates dictionary where key = letter, value = numeric code of letter"""
     string = ca.file_to_string('alphabet.txt')
     alphabet_list = string.split()
     output_dict = {}
@@ -16,6 +17,7 @@ def get_alphabet_number_dict():
 
 
 def get_numbers_from_cipher(file):
+    """generates list of tuples where letter == numeric code of letter, tuple == word"""
     input_string = ca.file_to_string(file)
     input_string = input_string.lower()
 
@@ -36,6 +38,7 @@ def get_numbers_from_cipher(file):
 
 
 def get_text_to_numbers(text):
+    """encodes text to unshifted numbers"""
     uncoded_numbers = get_alphabet_number_dict()
     split_text = ca.split_string(text)
     output_list = []
@@ -50,6 +53,7 @@ def get_text_to_numbers(text):
 
 
 def get_numbers_to_letters(numbers_list):
+    """decodes numbers to letters"""
     key_dict = get_alphabet_number_dict()
     output_string = ""
 
@@ -67,13 +71,14 @@ def get_numbers_to_letters(numbers_list):
 
 
 def get_shifted_numbers(input_list, shift_by):
+    """shifts numbers by given shift value"""
     output_list = []
     for item in input_list:
         sublist = []
         for number in item:
             result = number + shift_by
-            if result >= NUM_OF_CHAR_IN_ALPHABET:
-                result = result % NUM_OF_CHAR_IN_ALPHABET
+            if result >= NUM_OF_CHAR_IN_ENG_ALPHABET:
+                result = result % NUM_OF_CHAR_IN_ENG_ALPHABET
             sublist.append(result)
         sublist = tuple(sublist)
         output_list.append(sublist)
@@ -82,14 +87,25 @@ def get_shifted_numbers(input_list, shift_by):
 
 
 def bruteforce_decode(cipher_file):
+    """try with all effective keys to shift, print out all shifts"""
     cipher_num_list = get_numbers_from_cipher(cipher_file)
-    for i in range(NUM_OF_CHAR_IN_ALPHABET):
+    print("Brute forcing...")
+    for i in range(NUM_OF_CHAR_IN_ENG_ALPHABET):
         shifted_numbers = get_shifted_numbers(cipher_num_list, i)
         print(f"Shift Key ({i}) - {get_numbers_to_letters(shifted_numbers)}")
 
 
+def precise_decode(cipher_file, shift_key):
+    """shift by a precise shift key value"""
+    cipher_num_list = get_numbers_from_cipher(cipher_file)
+    shifted_numbers = get_shifted_numbers(cipher_num_list, shift_key)
+    print(f"Trying: Shift Key ({shift_key})\n\t- {get_numbers_to_letters(shifted_numbers)}")
+
+
 def main():
     bruteforce_decode('cipher.txt')
+    precise_decode('cipher.txt', 11)
+
 
 if __name__ == '__main__':
     main()
