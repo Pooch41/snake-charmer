@@ -53,7 +53,8 @@ def get_avg_grades(subjects: list, all_students: list) -> tuple:
         avg_grade = sum_of_grades / len(all_students)
         avg_grades.append(avg_grade)
 
-
+    overall_avg = total / (len(all_students) * len(subjects))
+    avg_grades.append(overall_avg)
 
     return tuple(avg_grades)  # tuple - as per requirement - dicts (items in tuple) scalable w/ different subject lists
 

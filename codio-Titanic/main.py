@@ -7,12 +7,41 @@ from load_data import load_data
 NUM_OF_COUNTRIES_PER_ROW = 6  # controls size of rows in print_all_countries(), for readability
 
 
-def print_separator_line():
+def quit_cli(data=None) -> None:
+    """print message and exits CLI"""
+    print("Exitting Ships CLI... Bye!")
+    raise SystemExit
+
+
+def print_separator_line() -> None:
     """for the user's sanity, call after execution of func is done"""
     print("-" * 80)
 
 
-def print_all_functions(data=None, num_of_ranks = None) -> None:
+def collect_data_in_keyword(data: dict, keyword: str, item_type: type | None = None) -> list:
+    """helper function - collect all in item[keyword] - data from csv file"""
+    output_list = []
+    if item_type is None:
+        for item in data["data"]:
+            output_list.append(item[keyword])
+    else:
+        for item in data["data"]:
+            output_list.append(item_type(item[keyword]))
+    return output_list
+
+
+def count_by_keyword(data: dict, keyword: str) -> dict:
+    """helper function - count by keyword - data from csv file"""
+    output_dict = {}
+    for item in data["data"]:
+        if item[keyword] not in output_dict:
+            output_dict[item[keyword]] = 1
+        else:
+            output_dict[item[keyword]] += 1
+    return output_dict
+
+
+def print_all_functions(data=None) -> None:
     """prints all commands recorded in dispatch"""
     print("All commands:")
     for key in DISPATCH_MAP:
@@ -21,12 +50,10 @@ def print_all_functions(data=None, num_of_ranks = None) -> None:
     print_separator_line()
 
 
-def print_all_countries(data: dict, num_of_ranks = None) -> None:
+def print_all_countries(data: dict) -> None:
     """collects all countries into list, sets the list, lists the set,puts them in alpha order"""
-    unique_countries = []
+    unique_countries = collect_data_in_keyword(data, "COUNTRY")
     print("All countries:")
-    for item in data["data"]:
-        unique_countries.append(item["COUNTRY"])
 
     unique_countries = sorted(list(set(unique_countries)))
 
@@ -42,48 +69,41 @@ def print_all_countries(data: dict, num_of_ranks = None) -> None:
     print_separator_line()
 
 
-def print_top_countries(data: dict, num_of_ranks = int) -> None:
+def print_top_countries(data: dict) -> None:
     """counts countries, then prints out top country, pops it, repeats num_of ranks times"""
-    country_count = {}
-
-    for item in data["data"]:
-        if item["COUNTRY"] not in country_count:
-            country_count[item["COUNTRY"]] = 1
-        else:
-            country_count[item["COUNTRY"]] += 1
+    while True:
+        try:
+            num_of_ranks = int(input("Enter the number of countries you want to rank:\n"))  # moved here to reduce bloat
+            if num_of_ranks < 1:
+                raise TypeError
+            break
+        except (TypeError, ValueError):
+            print("Please enter a number that is equal or greater than 1.")
+    country_count = count_by_keyword(data, "COUNTRY")
 
     for i in range(num_of_ranks):
         top_country = max(country_count, key=country_count.get)
-        print(f"{i + 1} {top_country} : {country_count[top_country]}")
+        print(f"{i + 1} {top_country}: {country_count[top_country]}")
         country_count.pop(top_country)
 
     print_separator_line()
 
 
-def print_ships_by_type(data: dict, num_of_ranks = None) -> None:
+def print_ships_by_type(data: dict) -> None:
     """collects ships by boat type, prints all types with counts"""
-    type_count = {}
-    print("Ships by boat type:")
-    for item in data["data"]:
-        if item["TYPE_SUMMARY"] not in type_count:
-            type_count[item["TYPE_SUMMARY"]] = 1
-        else:
-            type_count[item["TYPE_SUMMARY"]] += 1
+    type_count = count_by_keyword(data, "TYPE_SUMMARY")
+    print("Ships by type:")
 
+    type_count = sorted(type_count.items(), key=lambda x: x[1], reverse=True)
     for boat_type in type_count:
-        print(f"{boat_type} : {type_count[boat_type]}")
-
+        print(f"{boat_type[0]}: {boat_type[1]}")
     print_separator_line()
 
 
-def generate_speed_histogram(data: dict, num_of_ranks = None) -> None:
+def generate_speed_histogram(data: dict) -> None:
     """generates speed histogram based on input data"""
-    speeds = []
-
+    speeds = collect_data_in_keyword(data, "SPEED", float)
     print("Generating speed histogram...")
-    for item in data["data"]:
-        speeds.append(float(item["SPEED"]))
-
     plt.hist(sorted(speeds), bins=100, range=(min(speeds), max(speeds)))
     plt.title("Speed Histogram of Ships in Data")
     plt.xlabel("Speed")
@@ -95,7 +115,7 @@ def generate_speed_histogram(data: dict, num_of_ranks = None) -> None:
     print_separator_line()
 
 
-def print_searched_ship(data: dict, num_of_ranks = None) -> None:
+def print_searched_ship(data: dict) -> None:
     """searches for ship(s) by name snippet - may return many."""
     found_ships = []
     search_by = input("Please enter name, or part of name of the ship:")  # not validating cause ship_name == any string
@@ -103,24 +123,24 @@ def print_searched_ship(data: dict, num_of_ranks = None) -> None:
         if search_by.lower() in item["SHIPNAME"].lower():
             found_ships.append(item["SHIPNAME"])
 
-    print("Found ship(s):")
-    for ship in found_ships:
-        if len(ship) == 0:
-            print("No ships found.")  # smarter output
-        else:
+    if len(found_ships) == 0:
+        print(f"No ships found with '{search_by}' in name found.")
+    else:
+        print("Found ship(s):")
+        for ship in found_ships:
             print("\t" + ship)
 
     print_separator_line()
 
 
-def print_by_country_code(data: dict, num_of_ranks = None) -> None:
+def print_of_country_code(data: dict) -> None:
     """takes in country code (case-insensitive) lists all ship from the country"""
     found_ships = []
 
     while True:  # validate input
         try:
-            search_by = input("Please enter country code:")
-            if not search_by.isalpha() or len(search_by) > 3 or len(search_by) < 2: #codes are 3 or 2 characters
+            search_by = input("Please enter country code: ")
+            if not search_by.isalpha() or len(search_by) > 3 or len(search_by) < 2:  # codes are 3 or 2 characters
                 raise ValueError
             break
         except ValueError:
@@ -130,20 +150,17 @@ def print_by_country_code(data: dict, num_of_ranks = None) -> None:
         if search_by.upper() == item["CODE2"].upper():  # make both upper for to be more error proof
             found_ships.append(item["SHIPNAME"])
 
-    print(f"\n{search_by.upper()} ship(s) found ({len(found_ships)}):")
+    print(f"\n{search_by.upper()} ship(s) found ({len(found_ships)}): ")
     for ship in found_ships:
         print("\t" + ship)
 
     print_separator_line()
 
 
-def generate_ship_map(data: dict, num_of_ranks = None) -> None:
+def generate_ship_map(data: dict) -> None:
     """draws a cool map with dots where the ships are"""
-    latitudes = []
-    longitudes = []
-    for item in data["data"]:  # collects locations
-        latitudes.append((float(item["LAT"])))
-        longitudes.append((float(item["LON"])))
+    latitudes = collect_data_in_keyword(data, "LAT", float)
+    longitudes = collect_data_in_keyword(data, "LON", float)
 
     # source : https://scitools.org.uk/cartopy/docs/v0.15/matplotlib/intro.html
     # source : https://scitools.org.uk/cartopy/docs/v0.15/crs/projections.html#cartopy-projections
@@ -151,11 +168,11 @@ def generate_ship_map(data: dict, num_of_ranks = None) -> None:
 
     print("Plotting ship locations...")
     ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.add_feature(cfeature.LAND, facecolor = 'lightgray')
-    ax.add_feature(cfeature.OCEAN, facecolor = 'lightblue')
-    ax.add_feature(cfeature.LAKES, facecolor = 'lightblue', edgecolor = 'black')  # weird ships inland, see if lakes
+    ax.add_feature(cfeature.LAND, facecolor='lightgray')
+    ax.add_feature(cfeature.OCEAN, facecolor='lightblue')
+    ax.add_feature(cfeature.LAKES, facecolor='lightblue', edgecolor='black')  # weird ships inland, see if lakes
 
-    ax.scatter(longitudes, latitudes, color = 'red', marker = 'o', s = 3, transform = ccrs.PlateCarree())
+    ax.scatter(longitudes, latitudes, color='red', marker='o', s=3, transform=ccrs.PlateCarree())
     ax.coastlines()
     plt.show()
     print("Map closed.")
@@ -164,44 +181,28 @@ def generate_ship_map(data: dict, num_of_ranks = None) -> None:
 
 
 DISPATCH_MAP = {
+    "exit": quit_cli,
     "help": print_all_functions,
     "show_countries": print_all_countries,
     "top_countries": print_top_countries,
     "ships_by_type": print_ships_by_type,
     "speed_histogram": generate_speed_histogram,
     "search_ship": print_searched_ship,
-    "ship_by_country": print_by_country_code,
+    "ship_of_country": print_of_country_code,
     "draw_map": generate_ship_map
 }
 
 
-def main():
+def main() -> None:
     ship_data = load_data()
     print("Welcome to the Ships CLI!")
 
     while True:
         try:
             user_input = input("Enter 'help' to view available commands:\n").lower()
-
             if user_input not in DISPATCH_MAP:
                 raise TypeError
-
-            if user_input == "top_countries":
-                while True:
-                    try:
-                        num_of_ranks = int(input("Enter the number of countries you want to rank:\n"))
-                        if num_of_ranks < 1: raise ValueError
-                        break
-
-                    except ValueError:
-                        print("Please enter a number greater than 0.")
-
-                DISPATCH_MAP[user_input.strip()](ship_data, num_of_ranks)
-
-            else:
-
-                DISPATCH_MAP[user_input.strip()](ship_data)
-
+            DISPATCH_MAP[user_input.strip()](ship_data)
         except TypeError:
             print("Invalid command. Please try again.")
 
