@@ -1,16 +1,16 @@
+import os
 from random import choice
 from statistics import median
 
 import movie_storage as ms
 import validate_inputs as v
-import os
 
 
-def exit_application():
+def exit_application(movies=None, store=None, validate=None) -> None:
     os._exit(os.EX_OK)
 
 
-def get_movie_list(movie_dict: dict, store, validate):
+def print_movie_list(movie_dict: dict, store=None, validate=None) -> None:
     """retrieve all movies"""
     print(f"\n{len(movie_dict["movies"])} movies in total\n")
 
@@ -20,7 +20,7 @@ def get_movie_list(movie_dict: dict, store, validate):
     input("\nPress Enter to continue")
 
 
-def add_movie(movie_dict: dict, store, validate):
+def add_movie(movie_dict: dict, store, validate) -> None:
     title = validate.get_valid_new_name(movie_dict)
     year = validate.get_valid_year()
     rating = validate.get_valid_rating()
@@ -30,7 +30,7 @@ def add_movie(movie_dict: dict, store, validate):
     input("\nPress Enter to continue")
 
 
-def delete_movie(movie_dict: dict, store, validate):
+def delete_movie(movie_dict: dict, store, validate) -> None:
     """remove movie from dict"""
     movie_name = validate.get_valid_existing_name(movie_dict)
 
@@ -40,7 +40,7 @@ def delete_movie(movie_dict: dict, store, validate):
     input("\nPress Enter to continue")
 
 
-def update_movie(movie_dict: dict, store, validate):
+def update_movie(movie_dict: dict, store, validate) -> None:
     """update existing movie in dict"""
     movie_name = validate.get_valid_existing_name(movie_dict)
     rating = validate.get_valid_rating()
@@ -50,7 +50,7 @@ def update_movie(movie_dict: dict, store, validate):
     input("\nPress Enter to continue")
 
 
-def print_movie_stats(movie_dict: dict, store, validate):
+def print_movie_stats(movie_dict: dict, store=None, validate=None) -> None:
     """get avg, median, best(rating), worst(rating) - if same rating, print all with same rating"""
     scores = [float(movie["rating"]) for movie in movie_dict["movies"]]
 
@@ -81,7 +81,7 @@ def print_movie_stats(movie_dict: dict, store, validate):
     input("\nPress Enter to continue")
 
 
-def print_random_movie(movie_dict: dict, store, validate):
+def print_random_movie(movie_dict: dict, store=None, validate=None) -> None:
     """select random movie from dict, show rating"""
     item = choice(movie_dict["movies"])
     print(f"\nYour movie for tonight: {item["title"]}, it's rated {item["rating"]}")
@@ -89,7 +89,7 @@ def print_random_movie(movie_dict: dict, store, validate):
     input("\nPress Enter to continue")
 
 
-def print_searched_movie(movie_dict: dict, store, validate):
+def print_searched_movie(movie_dict: dict, store=None, validate=None) -> None:
     """search movie from dict, from any part of name - show rating when found"""
     movie_search = input("Enter part of movie name: ")
 
@@ -107,7 +107,7 @@ def print_searched_movie(movie_dict: dict, store, validate):
     input("\nPress Enter to continue")
 
 
-def print_ranked_movies(movie_dict: dict, store, validate):
+def print_ranked_movies(movie_dict: dict, store=None, validate=None) -> None:
     """sort and show movies by rating, display sorted rankings"""
     movies_w_rating = {}
     for movie in movie_dict["movies"]:
@@ -122,7 +122,8 @@ def print_ranked_movies(movie_dict: dict, store, validate):
 
     input("\nPress Enter to continue")
 
-def get_movies_by_year(movie_dict: dict, store, validate):
+
+def print_movies_by_year(movie_dict: dict, store=None, validate=None) -> None:
     """sort movies by year - reverse? ask user"""
     list_reversed = False
     while True:
@@ -139,40 +140,50 @@ def get_movies_by_year(movie_dict: dict, store, validate):
     for movie in movie_dict["movies"]:
         movies_w_year[movie["year"]] = movie["title"]
 
-    i = 0
+    i = 1
+    print()
     for year in sorted(movies_w_year, reverse=list_reversed):
         print(f"{i}. {movies_w_year[year]}, {year}")
         i += 1
 
     input("\nPress Enter to continue")
 
-def filter_movies(movies: list, name_of_key: str, number: int or float, reverse=False):
+
+def filter_movies_alternating(movies: list, name_of_key: str, number: int or float, reverse=False) -> list:
+    """filters input list by category name of key, value number, reverse True (1900 >>>), reverse False (<<<< 1900)"""
+    new_movies = []
     if reverse:
         for movie in movies:
-            if float(movie[name_of_key]) > number:
-                movies.remove(movie)
+            if float(movie[name_of_key]) < float(number):
+                new_movies.append(movie)
     else:
         for movie in movies:
-            if float(movie[name_of_key]) < number:
-                movies.remove(movie)
-    return movies
+            if float(movie[name_of_key]) > float(number):
+                new_movies.append(movie)
+    return new_movies
 
-def get_valid_filter_or_skip(movies: list, word: str, reverse=False) -> int:
+
+def get_valid_year_or_skip(movie_dict: dict, word: str, reverse=False) -> dict:
+    """year validator, takes reasonable years, processes input."""
+    filtered_movies = movie_dict
     while True:
         try:
             user_input = input(f"\nEnter {word} year (Enter to skip): ")
-            if user_input == "":break
-
+            if user_input == "":
+                break
             if float(user_input) < v.MOVIES_INVENTED or float(user_input) > v.CURRENT_YEAR:
                 raise ValueError()
             else:
-                    filter_movies(movies, "year", user_input, reverse)
+                filtered_movies = filter_movies_alternating(movie_dict, "year", user_input, reverse)
+            break
         except ValueError:
             print(f"\nInvalid year, please enter a number within range {v.MOVIES_INVENTED} - {v.CURRENT_YEAR}")
 
-        return movies
+    return filtered_movies
 
-def get_filtered_movies(movie_dict: dict, store, validate):
+
+def get_filtered_movies(movie_dict: dict, store=None, validate=None) -> None:
+    """master filter function, first prompts for rank requirement, then year filters"""
     qualified_movies = movie_dict["movies"]
     while True:
         try:
@@ -182,40 +193,39 @@ def get_filtered_movies(movie_dict: dict, store, validate):
             elif float(min_rating) < 1 or float(min_rating) > 10:
                 raise ValueError()
             else:
-                qualified_movies = filter_movies(qualified_movies, "rating", float(min_rating), True)
+                qualified_movies = filter_movies_alternating(qualified_movies, "rating", float(min_rating), False)
                 break
         except ValueError:
             print("\nInvalid rating, please enter a number within range")
 
-        qualified_movies = get_valid_filter_or_skip(qualified_movies, "start", True)
-        qualified_movies = get_valid_filter_or_skip(qualified_movies, "end", False)
+    qualified_movies = get_valid_year_or_skip(qualified_movies, "start", False)
+    qualified_movies = get_valid_year_or_skip(qualified_movies, "end", True)
 
-        for movie in qualified_movies:
-            print(f"{movie["title"]} ({movie["year"]}, {movie["rating"]}")
+    print()
+    for movie in qualified_movies:
+        print(f"{movie["title"]} ({movie["year"]}, {movie["rating"]})")
 
-
-
-
+    input("\nPress Enter to continue")
 
 
 DISPATCH_MAP = {
-        0: exit_application,
-        1: get_movie_list,
-        2: add_movie,
-        3: delete_movie,
-        4: update_movie,
-        5: print_movie_stats,
-        6: print_random_movie,
-        7: print_searched_movie,
-        8: print_ranked_movies,
-        9: get_movies_by_year,
-        10: get_filtered_movies,
+    0: exit_application,
+    1: print_movie_list,
+    2: add_movie,
+    3: delete_movie,
+    4: update_movie,
+    5: print_movie_stats,
+    6: print_random_movie,
+    7: print_searched_movie,
+    8: print_ranked_movies,
+    9: print_movies_by_year,
+    10: get_filtered_movies,
 }
 
 
 def main():
     """main function, acts  as menu -  show actions, select, execute, return to menu"""
-    store= ms.MovieStorage()
+    store = ms.MovieStorage()
     validate = v.ValidateInputs()
 
     while True:

@@ -6,6 +6,7 @@ CURRENT_YEAR = dt.now().year
 class ValidateInputs:
     @staticmethod
     def get_valid_title(movies: dict, exists: bool) -> str:
+        """validates movie title"""
         movie_titles = []
         for movie in movies["movies"]:
             movie_titles.append(movie["title"].lower())

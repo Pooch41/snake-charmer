@@ -7,7 +7,7 @@ from load_data import load_data
 NUM_OF_COUNTRIES_PER_ROW = 6  # controls size of rows in print_all_countries(), for readability
 
 
-def quit_cli(data=None) -> None:
+def quit_cli(data=None, ranks=None) -> None:
     """print message and exits CLI"""
     print("Exitting Ships CLI... Bye!")
     raise SystemExit
@@ -41,7 +41,7 @@ def count_by_keyword(data: dict, keyword: str) -> dict:
     return output_dict
 
 
-def print_all_functions(data=None) -> None:
+def print_all_functions(data=None, ranks=None) -> None:
     """prints all commands recorded in dispatch"""
     print("All commands:")
     for key in DISPATCH_MAP:
@@ -50,7 +50,7 @@ def print_all_functions(data=None) -> None:
     print_separator_line()
 
 
-def print_all_countries(data: dict) -> None:
+def print_all_countries(data: dict, ranks=None) -> None:
     """collects all countries into list, sets the list, lists the set,puts them in alpha order"""
     unique_countries = collect_data_in_keyword(data, "COUNTRY")
     print("All countries:")
@@ -69,11 +69,10 @@ def print_all_countries(data: dict) -> None:
     print_separator_line()
 
 
-def print_top_countries(data: dict) -> None:
+def print_top_countries(data: dict, num_of_ranks: int) -> None:
     """counts countries, then prints out top country, pops it, repeats num_of ranks times"""
     while True:
         try:
-            num_of_ranks = int(input("Enter the number of countries you want to rank:\n"))  # moved here to reduce bloat
             if num_of_ranks < 1:
                 raise TypeError
             break
@@ -89,7 +88,7 @@ def print_top_countries(data: dict) -> None:
     print_separator_line()
 
 
-def print_ships_by_type(data: dict) -> None:
+def print_ships_by_type(data: dict, ranks=None) -> None:
     """collects ships by boat type, prints all types with counts"""
     type_count = count_by_keyword(data, "TYPE_SUMMARY")
     print("Ships by type:")
@@ -100,7 +99,7 @@ def print_ships_by_type(data: dict) -> None:
     print_separator_line()
 
 
-def generate_speed_histogram(data: dict) -> None:
+def generate_speed_histogram(data: dict, ranks=None) -> None:
     """generates speed histogram based on input data"""
     speeds = collect_data_in_keyword(data, "SPEED", float)
     print("Generating speed histogram...")
@@ -115,10 +114,10 @@ def generate_speed_histogram(data: dict) -> None:
     print_separator_line()
 
 
-def print_searched_ship(data: dict) -> None:
+def print_searched_ship(data: dict, ranks=None) -> None:
     """searches for ship(s) by name snippet - may return many."""
     found_ships = []
-    search_by = input("Please enter name, or part of name of the ship:")  # not validating cause ship_name == any string
+    search_by = input("Please enter name, or part of name of the ship: ")  # not validating cause ship_name == any string
     for item in data["data"]:
         if search_by.lower() in item["SHIPNAME"].lower():
             found_ships.append(item["SHIPNAME"])
@@ -133,7 +132,7 @@ def print_searched_ship(data: dict) -> None:
     print_separator_line()
 
 
-def print_of_country_code(data: dict) -> None:
+def print_of_country_code(data: dict, ranks=None) -> None:
     """takes in country code (case-insensitive) lists all ship from the country"""
     found_ships = []
 
@@ -157,7 +156,7 @@ def print_of_country_code(data: dict) -> None:
     print_separator_line()
 
 
-def generate_ship_map(data: dict) -> None:
+def generate_ship_map(data: dict, ranks=None) -> None:
     """draws a cool map with dots where the ships are"""
     latitudes = collect_data_in_keyword(data, "LAT", float)
     longitudes = collect_data_in_keyword(data, "LON", float)
@@ -196,13 +195,23 @@ DISPATCH_MAP = {
 def main() -> None:
     ship_data = load_data()
     print("Welcome to the Ships CLI!")
+    ranks = 0
 
     while True:
         try:
             user_input = input("Enter 'help' to view available commands:\n").lower()
             if user_input not in DISPATCH_MAP:
                 raise TypeError
-            DISPATCH_MAP[user_input.strip()](ship_data)
+            if user_input == "top_countries":
+                while True:
+                    try:
+                        ranks = int(input("Enter the number of countries you want to rank:\n"))
+                        if ranks <= 0:
+                            raise ValueError
+                        break
+                    except ValueError:
+                        print("Ranks are only allowed to be whole, positive numbers. Please try again.")
+            DISPATCH_MAP[user_input.strip()](ship_data, ranks)
         except TypeError:
             print("Invalid command. Please try again.")
 
