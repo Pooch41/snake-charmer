@@ -117,7 +117,8 @@ def generate_speed_histogram(data: dict, ranks=None) -> None:
 def print_searched_ship(data: dict, ranks=None) -> None:
     """searches for ship(s) by name snippet - may return many."""
     found_ships = []
-    search_by = input("Please enter name, or part of name of the ship: ")  # not validating cause ship_name == any string
+    search_by = input(
+        "Please enter name, or part of name of the ship: ")  # not validating cause ship_name == any string
     for item in data["data"]:
         if search_by.lower() in item["SHIPNAME"].lower():
             found_ships.append(item["SHIPNAME"])
@@ -144,7 +145,6 @@ def print_of_country_code(data: dict, ranks=None) -> None:
             break
         except ValueError:
             print("Please enter valid country code.")
-
     for item in data["data"]:
         if search_by.upper() == item["CODE2"].upper():  # make both upper for to be more error proof
             found_ships.append(item["SHIPNAME"])
@@ -183,7 +183,7 @@ DISPATCH_MAP = {
     "exit": quit_cli,
     "help": print_all_functions,
     "show_countries": print_all_countries,
-    "top_countries": print_top_countries,
+    "top_countries <number_of_countries>": print_top_countries,
     "ships_by_type": print_ships_by_type,
     "speed_histogram": generate_speed_histogram,
     "search_ship": print_searched_ship,
@@ -195,25 +195,29 @@ DISPATCH_MAP = {
 def main() -> None:
     ship_data = load_data()
     print("Welcome to the Ships CLI!")
-    ranks = 0
+    num_of_countries = 0
+    unique_countries = []
+    for item in ship_data["data"]:
+        unique_countries.append(item["COUNTRY"])
+    unique_countries = set(unique_countries)
 
     while True:
         try:
             user_input = input("Enter 'help' to view available commands:\n").lower()
+            if "top_countries" in user_input:
+                input_parts = user_input.split()
+                user_input = "top_countries <number_of_countries>"
+                num_of_countries = int(input_parts[-1])
+                if num_of_countries <= 0 or num_of_countries > len(unique_countries):
+                    raise ValueError
             if user_input not in DISPATCH_MAP:
                 raise TypeError
-            if user_input == "top_countries":
-                while True:
-                    try:
-                        ranks = int(input("Enter the number of countries you want to rank:\n"))
-                        if ranks <= 0:
-                            raise ValueError
-                        break
-                    except ValueError:
-                        print("Ranks are only allowed to be whole, positive numbers. Please try again.")
-            DISPATCH_MAP[user_input.strip()](ship_data, ranks)
+            DISPATCH_MAP[user_input.strip()](ship_data, num_of_countries)
         except TypeError:
             print("Invalid command. Please try again.")
+        except ValueError:
+            print(
+                f"Invalid number of countries. Please try again, maximum number of countries = {len(unique_countries)}.")
 
 
 if __name__ == "__main__":
