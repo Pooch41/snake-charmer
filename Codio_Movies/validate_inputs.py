@@ -3,22 +3,23 @@ from datetime import datetime as dt
 MOVIES_INVENTED = 1880  # first motion cameras appeared in this decade
 CURRENT_YEAR = dt.now().year
 
+
 class ValidateInputs:
     @staticmethod
     def get_valid_title(movies: dict, exists: bool) -> str:
         """validates movie title"""
         movie_titles = []
-        for movie in movies["movies"]:
-            movie_titles.append(movie["title"].lower())
+        for movie in movies['movies']:
+            movie_titles.append(movie['title'].lower())
 
         while True:
             try:
-                name = input("\nEnter movie name: ")
+                name = input("\nEnter movie name: ").strip()
                 if len(name) < 1:
                     raise ValueError("Please enter a name!")
                 if exists:
                     if name.lower() not in movie_titles:
-                        raise ValueError("Movie doesn't exists!")
+                        raise ValueError("Movie doesn't exist!")
                 else:
                     if name.lower() in movie_titles:
                         raise ValueError("Movie name already exists!")
@@ -40,6 +41,7 @@ class ValidateInputs:
         name = self.get_valid_title(movies, False)
         return name
 
+
     @staticmethod
     def get_valid_year() -> int:
         """validate that release year is a number and is within bounds"""
@@ -54,6 +56,7 @@ class ValidateInputs:
                 print("\nInvalid year, please enter a number within range")
 
         return year
+
 
     @staticmethod
     def get_valid_rating() -> float:

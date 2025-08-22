@@ -1,4 +1,4 @@
-import os
+import sys
 from random import choice
 from statistics import median
 
@@ -7,15 +7,16 @@ import validate_inputs as v
 
 
 def exit_application(movies=None, store=None, validate=None) -> None:
-    os._exit(os.EX_OK)
+    print("Exiting... Bye!")
+    sys.exit(0)
 
 
 def print_movie_list(movie_dict: dict, store=None, validate=None) -> None:
     """retrieve all movies"""
     print(f"\n{len(movie_dict["movies"])} movies in total\n")
 
-    for movie in movie_dict["movies"]:
-        print(f"{movie["title"]} ({movie["year"]}): {movie["rating"]}")
+    for movie in movie_dict['movies']:
+        print(f"{movie['title']} ({int(movie['year'])}): {float(movie['rating'])}")
 
     input("\nPress Enter to continue")
 
@@ -51,8 +52,9 @@ def update_movie(movie_dict: dict, store, validate) -> None:
 
 
 def print_movie_stats(movie_dict: dict, store=None, validate=None) -> None:
-    """get avg, median, best(rating), worst(rating) - if same rating, print all with same rating"""
-    scores = [float(movie["rating"]) for movie in movie_dict["movies"]]
+    """get avg, median, best(rating), worst(rating)
+        - if same rating, print all with same rating"""
+    scores = [float(movie['rating']) for movie in movie_dict['movies']]
 
     average_rating = sum(scores) / len(scores)
     print(f"\nAverage rating: {average_rating:.01f}")
@@ -66,25 +68,25 @@ def print_movie_stats(movie_dict: dict, store=None, validate=None) -> None:
     print("Best movie(s):")
     for movie in movie_dict["movies"]:
         if float(movie["rating"]) == best_score:
-            best_movies.append(movie["title"])
-            print(f"\t{movie["title"]}, {movie["rating"]}")
+            best_movies.append(movie['title'])
+            print(f"\t{movie['title']}, {float(movie['rating'])}")
 
     worst_score = min(scores)
     worst_movies = []
 
     print("Worst movie(s):")
     for movie in movie_dict["movies"]:
-        if float(movie["rating"]) == worst_score:
-            worst_movies.append(movie["title"])
-            print(f"\t{movie["title"]}, {movie["rating"]}")
+        if float(movie['rating']) == worst_score:
+            worst_movies.append(movie['title'])
+            print(f"\t{movie['title']}, {float(movie['rating'])}")
 
     input("\nPress Enter to continue")
 
 
 def print_random_movie(movie_dict: dict, store=None, validate=None) -> None:
     """select random movie from dict, show rating"""
-    item = choice(movie_dict["movies"])
-    print(f"\nYour movie for tonight: {item["title"]}, it's rated {item["rating"]}")
+    item = choice(movie_dict['movies'])
+    print(f"\nYour movie for tonight: {item['title']}, it's rated {float(item['rating'])}")
 
     input("\nPress Enter to continue")
 
@@ -95,9 +97,9 @@ def print_searched_movie(movie_dict: dict, store=None, validate=None) -> None:
 
     print()
     movies_found = 0
-    for movie in movie_dict["movies"]:
+    for movie in movie_dict['movies']:
         if movie_search.lower() in movie["title"].lower():
-            print(f"{movie["title"]}, {movie["rating"]}")
+            print(f"{movie['title']}, {float(movie['rating'])}")
             movies_found += 1
 
     if movies_found == 0:
@@ -110,8 +112,8 @@ def print_searched_movie(movie_dict: dict, store=None, validate=None) -> None:
 def print_ranked_movies(movie_dict: dict, store=None, validate=None) -> None:
     """sort and show movies by rating, display sorted rankings"""
     movies_w_rating = {}
-    for movie in movie_dict["movies"]:
-        movies_w_rating[movie["title"]] = movie["rating"]
+    for movie in movie_dict['movies']:
+        movies_w_rating[movie['title']] = float(movie['rating'])
 
     print()
     for _ in range(len(movies_w_rating)):
@@ -128,29 +130,30 @@ def print_movies_by_year(movie_dict: dict, store=None, validate=None) -> None:
     list_reversed = False
     while True:
         user_input = input("\n1 for Newest -> Oldest, 2 for Oldest -> Newest: ")
-        if user_input.lower() == "1":
+        if user_input == "1":
             list_reversed = True
             break
-        if user_input.lower() == "2":
+        if user_input == "2":
             break
         else:
             print("\nPlease enter '1' or '2'")
 
     movies_w_year = {}
-    for movie in movie_dict["movies"]:
-        movies_w_year[movie["year"]] = movie["title"]
+    for movie in movie_dict['movies']:
+        movies_w_year[int(movie['year'])] = movie['title']
 
     i = 1
     print()
     for year in sorted(movies_w_year, reverse=list_reversed):
-        print(f"{i}. {movies_w_year[year]}, {year}")
+        print(f"{i}. {movies_w_year[year]}, {int(year)}")
         i += 1
 
     input("\nPress Enter to continue")
 
 
 def filter_movies_alternating(movies: list, name_of_key: str, number: int or float, reverse=False) -> list:
-    """filters input list by category name of key, value number, reverse True (1900 >>>), reverse False (<<<< 1900)"""
+    """filters input list by category name of key, value number,
+        reverse True (1900 >>>), reverse False (<<<< 1900)"""
     new_movies = []
     if reverse:
         for movie in movies:
@@ -174,7 +177,7 @@ def get_valid_year_or_skip(movie_dict: dict, word: str, reverse=False) -> dict:
             if float(user_input) < v.MOVIES_INVENTED or float(user_input) > v.CURRENT_YEAR:
                 raise ValueError()
             else:
-                filtered_movies = filter_movies_alternating(movie_dict, "year", user_input, reverse)
+                filtered_movies = filter_movies_alternating(movie_dict, 'year', user_input, reverse)
             break
         except ValueError:
             print(f"\nInvalid year, please enter a number within range {v.MOVIES_INVENTED} - {v.CURRENT_YEAR}")
@@ -184,7 +187,7 @@ def get_valid_year_or_skip(movie_dict: dict, word: str, reverse=False) -> dict:
 
 def get_filtered_movies(movie_dict: dict, store=None, validate=None) -> None:
     """master filter function, first prompts for rank requirement, then year filters"""
-    qualified_movies = movie_dict["movies"]
+    qualified_movies = movie_dict['movies']
     while True:
         try:
             min_rating = input("\nEnter minimum rating for movie(Enter to skip): ")
@@ -193,17 +196,20 @@ def get_filtered_movies(movie_dict: dict, store=None, validate=None) -> None:
             elif float(min_rating) < 1 or float(min_rating) > 10:
                 raise ValueError()
             else:
-                qualified_movies = filter_movies_alternating(qualified_movies, "rating", float(min_rating), False)
+                qualified_movies = filter_movies_alternating(qualified_movies,
+                                                             'rating',
+                                                             float(min_rating),
+                                                             False)
                 break
         except ValueError:
             print("\nInvalid rating, please enter a number within range")
 
-    qualified_movies = get_valid_year_or_skip(qualified_movies, "start", False)
-    qualified_movies = get_valid_year_or_skip(qualified_movies, "end", True)
+    qualified_movies = get_valid_year_or_skip(qualified_movies, 'start', False)
+    qualified_movies = get_valid_year_or_skip(qualified_movies, 'end', True)
 
     print()
     for movie in qualified_movies:
-        print(f"{movie["title"]} ({movie["year"]}, {movie["rating"]})")
+        print(f"{movie['title']} ({movie['year']}, {movie['rating']})")
 
     input("\nPress Enter to continue")
 
