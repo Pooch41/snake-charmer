@@ -48,7 +48,8 @@ class ValidateInputs:
         year = 0
         while True:
             try:
-                year = int(input(f"\nEnter movie release year, full years ({MOVIES_INVENTED} to {CURRENT_YEAR}): "))
+                year = int(input(f"\nEnter movie release year "
+                                 f"({MOVIES_INVENTED} to {CURRENT_YEAR}): "))
                 if year < MOVIES_INVENTED or year > CURRENT_YEAR:
                     raise ValueError()
                 break

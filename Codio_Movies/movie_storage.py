@@ -7,12 +7,12 @@ class MovieStorage:
 
     def get_movies(self) -> dict:
         """loads movie list from json file"""
-        with open('data.json', 'r') as handle:
+        with open(self.file_path, 'r') as handle:
             return json.load(handle)
 
     def save_movies(self, movies: dict) -> None:
         """saves changes to json file"""
-        with open('data.json', 'w') as handle:
+        with open(self.file_path, 'w') as handle:
             json.dump(movies, handle, indent=4)
 
     def add_movie(self, title: str, year: int, rating: float) -> None:
