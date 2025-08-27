@@ -1,0 +1,6 @@
+My name is David and I am a data scientist.
+My name is Sarah and she is a graphic designer.
+My name is Michael and he is a software engineer.
+My name is Emily and I am a product manager.
+My name is Chris and they are a project coordinator.
+My name is Jessica and I am an accountant.
