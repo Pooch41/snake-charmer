@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, text
+from main import DELAY_LIMIT
 
 QUERY_FLIGHT_BY_ID = ("SELECT flights.*, airlines.airline, "
                       "flights.ID as FLIGHT_ID, flights.DEPARTURE_DELAY as DELAY FROM flights "
@@ -15,13 +16,13 @@ QUERY_DELAYED_FLIGHT_BY_ORIGIN_AIRPORT = ("SELECT flights.*, airlines.airline, "
                                           "flights.ID as FLIGHT_ID, flights.DEPARTURE_DELAY as DELAY FROM flights "
                                           "JOIN airlines ON flights.airline = airlines.ID "
                                           "WHERE flights.ORIGIN_AIRPORT = :ORIGIN_AIRPORT "
-                                          "AND flights.DEPARTURE_DELAY > 20")
+                                          f"AND flights.DEPARTURE_DELAY >= {DELAY_LIMIT}")
 
 QUERY_DELAYED_FLIGHT_BY_AIRLINE = ("SELECT flights.*, airlines.airline, "
                                    "flights.ID as FLIGHT_ID, flights.DEPARTURE_DELAY as DELAY FROM flights "
                                    "JOIN airlines ON flights.airline = airlines.ID "
                                    "WHERE airlines.AIRLINE = :AIRLINE "
-                                   "AND flights.DEPARTURE_DELAY > 20")
+                                   f"AND flights.DEPARTURE_DELAY >= {DELAY_LIMIT}")
 # Define the database URL
 DATABASE_URL = "sqlite:///data/flights.sqlite3"
 
@@ -68,6 +69,7 @@ def get_delayed_flights_by_airline(airline: str):
     """
     Searches for flight details using airline name.
     If flights were found, returns as many flights as found. Delay means 20+ minutes.
+    (DELAY_LIMIT dictates acceptable delay, may change if constant changed)
     """
     params = {'AIRLINE': airline}
     return execute_query(QUERY_DELAYED_FLIGHT_BY_AIRLINE, params)
@@ -77,6 +79,7 @@ def get_delayed_flights_by_airport(airport: str):
     """
     Searches for flight details using origin airport code.
     If flights were found, returns as many flights as found. Delay means 20+ minutes.
+    (DELAY_LIMIT dictates acceptable delay, may change if constant changed)
     """
     params = {'ORIGIN_AIRPORT': airport}
     return execute_query(QUERY_DELAYED_FLIGHT_BY_ORIGIN_AIRPORT, params)

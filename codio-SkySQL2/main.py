@@ -6,6 +6,7 @@ import sqlalchemy
 import flights_data
 
 IATA_LENGTH = 3
+DELAY_LIMIT = 20
 
 
 def delayed_flights_by_airline():
@@ -57,7 +58,7 @@ def flight_by_id():
     while not valid:
         try:
             id_input = int(input("Enter flight ID: "))
-        except Exception as e:
+        except ValueError as e:
             print("Try again...")
         else:
             valid = True
@@ -119,10 +120,10 @@ def print_results(results):
             return
 
         # Different prints for delayed and non-delayed flights
-        if delay and delay > 0:
-            print(f"{result['ID']}. {origin} -> {dest} by {airline}, Delay: {delay} Minutes")
+        if delay and delay >= DELAY_LIMIT:
+            print(f"{result['FLIGHT_ID']}. {origin} -> {dest} by {airline}, Delay: {delay} Minutes")
         else:
-            print(f"{result['ID']}. {origin} -> {dest} by {airline}")
+            print(f"{result['FLIGHT_ID']}. {origin} -> {dest} by {airline}")
 
 
 def show_menu_and_get_input():
@@ -167,6 +168,8 @@ def main():
             if save_csv.lower() == "y":
                 if isinstance(df, pd.DataFrame) and not df.empty:
                     filename = input("Please input filename: ")
+                    if filename.lower().split(".", 1)[-1] == "csv":
+                        filename = filename.lower().split(".", 1)[0]
                     df.to_csv(f'{filename}.csv', index=False)
                     print(f"File '{filename}.csv' saved successfully!")
                     break
