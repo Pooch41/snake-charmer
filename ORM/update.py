@@ -1,3 +1,4 @@
+from sqlalchemy import create_engine, Column, Integer, String, update
 from setup import session, Restaurant
 
 restaurant_to_update = session.query(Restaurant) \

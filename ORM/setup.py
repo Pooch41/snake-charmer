@@ -23,35 +23,35 @@ class Restaurant(Base):
 
 Base.metadata.create_all(engine)
 
-restaurant = Restaurant(
-    restaurant_name="NYC Diner",
-    restaurant_city="New York City, US",
-    famous_dish="Eggs Benedict"
-)
-session.add(restaurant)
-
-restaurant = Restaurant(
-    restaurant_name="The French Laundry",
-    restaurant_city="Yountville, US",
-    famous_dish="Oysters and Pearls"
-)
-
-session.add(restaurant)
-
-restaurant = Restaurant(
-    restaurant_name="THE FAT DUCK",
-    restaurant_city="BRAY, UK",
-    famous_dish="Snail Porridge"
-)
-
-session.add(restaurant)
-
-restaurant = Restaurant(
-    restaurant_name="EL CELLER DE CAN ROCA",
-    restaurant_city="GIRONA, ESP",
-    famous_dish="Green olive's ice cream and black olive tempura"
-)
-
-session.add(restaurant)
-
-session.commit()
+# restaurant = Restaurant(
+#     restaurant_name="NYC Diner",
+#     restaurant_city="New York City, US",
+#     famous_dish="Eggs Benedict"
+# )
+# session.add(restaurant)
+#
+# restaurant = Restaurant(
+#     restaurant_name="The French Laundry",
+#     restaurant_city="Yountville, US",
+#     famous_dish="Oysters and Pearls"
+# )
+#
+# session.add(restaurant)
+#
+# restaurant = Restaurant(
+#     restaurant_name="THE FAT DUCK",
+#     restaurant_city="BRAY, UK",
+#     famous_dish="Snail Porridge"
+# )
+#
+# session.add(restaurant)
+#
+# restaurant = Restaurant(
+#     restaurant_name="EL CELLER DE CAN ROCA",
+#     restaurant_city="GIRONA, ESP",
+#     famous_dish="Green olive's ice cream and black olive tempura"
+# )
+#
+# session.add(restaurant)
+#
+# session.commit()
